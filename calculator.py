@@ -23,7 +23,14 @@ color_white = "#FFFFFF"
 window = tkinter.Tk()
 window.title("Calculator")
 window.resizable(False, False)
+
+frame = tkinter.Frame(window)
+label = tkinter.Label(frame, text="0", font=("Arial", 40), bg=color_black, fg=color_white, width=14, height=2, anchor="e")
+label.pack()
+frame.pack()
 window.mainloop()
+
+
 
 
     
