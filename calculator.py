@@ -11,9 +11,6 @@ button_values = [
 right_symbols = ["+", "-", "×", "÷", "="]
 top_symbols = ["AC", "+/-", "%"]
 
-row_count = len(button_values) #5
-column_count = len(button_values[0]) #4
-
 color_light_gray = "#D4D4D2"
 color_black = "#1C1C1C"
 color_dark_gray = "#505050"
@@ -24,20 +21,64 @@ window = tkinter.Tk()
 window.title("Calculator")
 window.resizable(False, False)
 
-frame = tkinter.Frame(window)
-label = tkinter.Label(frame, text="0", font=("Arial", 40), bg=color_black, fg=color_white, width=14, height=2, anchor="e")
+frame = tkinter.Frame(window, bg=color_black)
+frame.pack(fill="both", expand=True)
 
+# Display Label
+label = tkinter.Label(
+    frame,
+    text="0",
+    font=("Arial", 40),
+    bg=color_black,
+    fg=color_white,
+    anchor="e",
+    padx=20,
+    pady=20
+)
+label.grid(row=0, column=0, columnspan=4, sticky="nsew")
 
-label.grid(row=0, column=0)
+def button_clicked(value):
+    pass
 
-for row in range(row_count):
-    for column in range(row_count):
+# Create buttons
+for row in range(len(button_values)):
+    for column in range(len(button_values[row])):
         value = button_values[row][column]
-        button_= tkinter.Button(frame, text=value, font=("Arial", 24), width=column_count-1, height=1, command=lambda v=value: print(v))
-frame.pack()
+
+        # Color logic
+        if value in top_symbols:
+            bg = color_light_gray
+            fg = color_black
+        elif value in right_symbols:
+            bg = color_orange
+            fg = color_white
+        else:
+            bg = color_dark_gray
+            fg = color_white
+
+        button = tkinter.Button(
+            frame,
+            text=value,
+            font=("Arial", 26),
+            bg=bg,
+            fg=fg,
+            bd=0,
+            activebackground=bg,
+            activeforeground=fg,
+            command=lambda v=value: button_clicked(v)
+        )
+
+        # Make 0 button wider (like real calculators)
+        if value == "0":
+            button.grid(row=row+1, column=column, columnspan=2, sticky="nsew")
+        else:
+            button.grid(row=row+1, column=column, sticky="nsew")
+
+# Grid stretching for equal button sizes
+for i in range(4):
+    frame.columnconfigure(i, weight=1)
+
+for i in range(len(button_values) + 1):
+    frame.rowconfigure(i, weight=1)
+
 window.mainloop()
-
-
-
-
-    
