@@ -81,4 +81,14 @@ for i in range(4):
 for i in range(len(button_values) + 1):
     frame.rowconfigure(i, weight=1)
 
+# Center the window on the screen
+window.update_idletasks()
+width = window.winfo_width()
+height = window.winfo_height()
+screen_width = window.winfo_screenwidth()
+screen_height = window.winfo_screenheight()
+pos_x = (screen_width // 2) - (width // 2)
+pos_y = (screen_height // 2) - (height // 2)
+window.geometry(f"{width}x{height}+{pos_x}+{pos_y}")
+
 window.mainloop()
