@@ -1,5 +1,5 @@
 # pyCALC
 "practice" making a calculator using python language
 
-# people pleaser
-don't judge please
+# note
+don't judge please, will re-do once finals is done
