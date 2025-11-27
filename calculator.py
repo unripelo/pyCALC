@@ -1,4 +1,5 @@
 import tkinter 
+import math
 
 button_values = [
      ["AC", "+/-", "%", "÷"],
@@ -37,8 +38,172 @@ label = tkinter.Label(
 )
 label.grid(row=0, column=0, columnspan=4, sticky="nsew")
 
+# Calculator state
+current_value = None
+operator = None
+clear_next = False
+
+def format_number(n):
+    # Format numbers to avoid unnecessary .0
+    if isinstance(n, str):
+        return n
+    if n is None:
+        return "0"
+    if math.isinf(n) or math.isnan(n):
+        return "Error"
+    if abs(n - int(n)) < 1e-12:
+        return str(int(n))
+    return str(n)
+
+def get_display_value():
+    text = label.cget("text")
+    if text == "Error":
+        return text
+    try:
+        return float(text)
+    except Exception:
+        return 0.0
+
+def set_display(value):
+    if isinstance(value, str):
+        label.config(text=value)
+    else:
+        label.config(text=format_number(value))
+
+def perform_operation(a, op, b):
+    try:
+        if op == "+":
+            return a + b
+        if op == "-":
+            return a - b
+        if op == "×":
+            return a * b
+        if op == "÷":
+            if b == 0:
+                return "Error"
+            return a / b
+    except Exception:
+        return "Error"
+
 def button_clicked(value):
-    pass
+    global current_value, operator, clear_next
+
+    disp = label.cget("text")
+
+    # If currently showing Error, any non-AC input resets
+    if disp == "Error" and value != "AC":
+        return
+
+    # Digits
+    if value.isdigit():
+        if clear_next or disp == "0":
+            set_display(int(value))
+            clear_next = False
+        else:
+            # append digit
+            set_display(disp + value)
+        return
+
+    # Decimal point
+    if value == ".":
+        if clear_next:
+            set_display("0.")
+            clear_next = False
+            return
+        if "." not in disp:
+            set_display(disp + ".")
+        return
+
+    # All Clear
+    if value == "AC":
+        current_value = None
+        operator = None
+        clear_next = False
+        set_display(0)
+        return
+
+    # Toggle sign
+    if value == "+/-":
+        try:
+            num = float(disp)
+            num = -num
+            set_display(num)
+        except Exception:
+            set_display("Error")
+        return
+
+    # Percent
+    if value == "%":
+        try:
+            num = float(disp) / 100.0
+            set_display(num)
+        except Exception:
+            set_display("Error")
+        return
+
+    # Square root
+    if value == "√":
+        try:
+            num = float(disp)
+            if num < 0:
+                set_display("Error")
+            else:
+                set_display(math.sqrt(num))
+        except Exception:
+            set_display("Error")
+        clear_next = True
+        return
+
+    # Operators (+, -, ×, ÷)
+    if value in ["+", "-", "×", "÷"]:
+        try:
+            num = float(disp)
+        except Exception:
+            set_display("Error")
+            return
+
+        if current_value is None:
+            current_value = num
+        else:
+            # If chaining operations, compute previous first
+            if not clear_next:
+                result = perform_operation(current_value, operator, num)
+                if result == "Error":
+                    set_display("Error")
+                    current_value = None
+                    operator = None
+                    clear_next = True
+                    return
+                current_value = result
+                set_display(current_value)
+
+        operator = value
+        clear_next = True
+        return
+
+    # Equals
+    if value == "=":
+        if operator is None or current_value is None:
+            return
+        try:
+            num = float(disp)
+        except Exception:
+            set_display("Error")
+            return
+
+        result = perform_operation(current_value, operator, num)
+        if result == "Error":
+            set_display("Error")
+        else:
+            set_display(result)
+        # reset state
+        current_value = None
+        operator = None
+        clear_next = True
+        return
+
+    # Fallback
+    return
 
 # Create buttons
 for row in range(len(button_values)):
